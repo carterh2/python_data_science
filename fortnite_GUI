@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Sep 24 11:19:52 2020
+
+@author: carterhogan
+"""
+
+import pandas as pd
+import numpy as np 
+import matplotlib.pyplot as plt
+from sklearn import linear_model
+import statsmodels.api as sm
+import tkinter as tk 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+#Read Data Set 
+df = pd.read_excel('/Users/carterhogan/Downloads/fortnite.xlsx')
+#Scatterplot Placed vs Eliminations 
+plt.scatter(df['Eliminations'], df['Placed'], color='red')
+plt.title('Placed vs Eliminations', fontsize=14)
+plt.xlabel('Eliminations', fontsize=14)
+plt.ylabel('Placed', fontsize=14)
+plt.grid(True)
+plt.show()
+# Scatterplot 
+plt.scatter(df['Damage to Players'], df['Placed'], color='red')
+plt.title('Placed vs Damage to Players', fontsize=14)
+plt.xlabel('Damage to Players', fontsize=14)
+plt.ylabel('Placed', fontsize=14)
+plt.grid(True)
+plt.show()
+# Scatterplot 
+plt.scatter(df['Accuracy'], df['Placed'], color='red')
+plt.title('Placed vs Accuracy', fontsize=14)
+plt.xlabel('Accuracy', fontsize=14)
+plt.ylabel('Placed', fontsize=14)
+plt.grid(True)
+plt.show()
+# Scatterplot 
+plt.scatter(df['Materials Used'], df['Placed'], color='red')
+plt.title('Placed vs Materials Used', fontsize=14)
+plt.xlabel('Materials Used', fontsize=14)
+plt.ylabel('Placed', fontsize=14)
+plt.grid(True)
+plt.show()
+# Scatterplot 
+plt.scatter(df['Head Shots'], df['Placed'], color='red')
+plt.title('Placed vs Head Shots', fontsize=14)
+plt.xlabel('Head Shots', fontsize=14)
+plt.ylabel('Placed', fontsize=14)
+plt.grid(True)
+plt.show()
+# Scatterplot 
+plt.scatter(df['Damage Taken'], df['Placed'], color='red')
+plt.title('Placed vs Damage Taken', fontsize=14)
+plt.xlabel('Damage Taken', fontsize=14)
+plt.ylabel('Placed', fontsize=14)
+plt.grid(True)
+plt.show()
+# Multiple Linear Regression 
+X = df[['Eliminations','Damage to Players','Accuracy','Materials Used', 'Head Shots','Damage Taken']]
+Y = df['Placed']
+#sklearn
+regr = linear_model.LinearRegression()
+regr.fit(X, Y)
+print('Intercept: \n', regr.intercept_)
+print('Coefficients: \n', regr.coef_)
+
+X = sm.add_constant(X) # adding a constant
+ 
+model = sm.OLS(Y, X).fit()
+predictions = model.predict(X) 
+ 
+print_model = model.summary()
+print(print_model)
+# Accuracy and Damage Taken are the only independent variables that are statistically significant 
+# with a p-value of .007, and .01 respectively, I thought materials used would be the most significant from personal experience
+
+# Let's Make a Regression GUI that uses Damage Taken and Accuracy as inputs to predict Placed
+X = df[['Accuracy','Damage Taken','Eliminations','Materials Used']].astype(float)
+Y = df['Placed'].astype(float)
+
+regr = linear_model.LinearRegression()
+regr.fit(X, Y)
+
+print('Intercept: \n', regr.intercept_)
+print('Coefficients: \n', regr.coef_)
+
+# Tinker GUI 
+root= tk.Tk()
+canvas1 = tk.Canvas(root, width = 500, height = 300)
+canvas1.pack()
+
+Intercept_result = ('Intercept: ', regr.intercept_)
+label_Intercept = tk.Label(root, text=Intercept_result, justify = 'center')
+canvas1.create_window(260, 220, window=label_Intercept)
+
+Coefficients_result  = ('Coefficients: ', regr.coef_)
+label_Coefficients = tk.Label(root, text=Coefficients_result, justify = 'center')
+canvas1.create_window(260, 240, window=label_Coefficients)
+
+# Entry Box for Accuracy
+label1 = tk.Label(root, text='Type Accuracy: ')
+canvas1.create_window(100, 100, window=label1)
+
+entry1 = tk.Entry (root) # create 1st entry box
+canvas1.create_window(270, 100, window=entry1)
+
+# Entry Box for Damage Taken 
+
+label2 = tk.Label(root, text=' Type Damage Taken: ')
+canvas1.create_window(120, 120, window=label2)
+
+entry2 = tk.Entry (root) 
+canvas1.create_window(270, 120, window=entry2)
+
+label3= tk.Label(root, text=' Type Eliminations: ')
+canvas1.create_window(140, 140, window=label3)
+
+entry3 = tk.Entry (root) 
+canvas1.create_window(270, 140, window=entry3)
+
+label4 = tk.Label(root, text=' Type Materials Used: ')
+canvas1.create_window(160, 160, window=label4)
+
+entry4 = tk.Entry (root) 
+canvas1.create_window(270, 160, window=entry4)
+
+# Define Values 
+
+def values(): 
+    global New_Accuracy #our 1st input variable
+    New_Accuracy = float(entry1.get()) 
+    
+    global New_Damage_Taken #our 2nd input variable
+    New_Damage_Taken = float(entry2.get()) 
+    
+    global New_Eliminations
+    New_Eliminations = float(entry3.get())
+    
+    global New_Materials_Used
+    New_Materials_Used = float(entry4.get())
+    
+    Prediction_result  = ('Predicted Placement: ', regr.predict([[New_Accuracy ,New_Damage_Taken, New_Eliminations, New_Materials_Used]]))
+    label_Prediction = tk.Label(root, text= Prediction_result, bg='orange')
+    canvas1.create_window(260, 280, window=label_Prediction)
+
+button1 = tk.Button (root, text='Predict Placement',command=values, bg='orange') # button to call the 'values' command above 
+canvas1.create_window(270, 200, window=button1)
+
+#plot 1st scatter 
+figure3 = plt.Figure(figsize=(3,3), dpi=100)
+ax3 = figure3.add_subplot(111)
+ax3.scatter(df['Accuracy'].astype(float),df['Placed'].astype(float), color = 'r')
+scatter3 = FigureCanvasTkAgg(figure3, root) 
+scatter3.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH)
+ax3.legend(['Placed']) 
+ax3.set_xlabel('Accuracy')
+ax3.set_title('Accuracy Vs. Placed')
+
+#plot 2nd scatter 
+figure4 = plt.Figure(figsize=(3,3), dpi=100)
+ax4 = figure4.add_subplot(111)
+ax4.scatter(df['Damage Taken'].astype(float),df['Placed'].astype(float), color = 'g')
+scatter4 = FigureCanvasTkAgg(figure4, root) 
+scatter4.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH)
+ax4.legend(['Placed']) 
+ax4.set_xlabel('Damage Taken')
+ax4.set_title('Damage Taken Vs. Placed')
+
+#plot 3rd scatter
+figure5 = plt.Figure(figsize=(3,3), dpi=100)
+ax5 = figure5.add_subplot(111)
+ax5.scatter(df['Eliminations'].astype(float),df['Placed'].astype(float), color = 'b')
+scatter5 = FigureCanvasTkAgg(figure5, root) 
+scatter5.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH)
+ax5.legend(['Placed']) 
+ax5.set_xlabel('Eliminations')
+ax5.set_title('Eliminations Vs. Placed')
+
+#plot 4th scatter 
+
+figure6 = plt.Figure(figsize=(3,3), dpi=100)
+ax6 = figure6.add_subplot(111)
+ax6.scatter(df['Materials Used'].astype(float),df['Placed'].astype(float), color = 'y')
+scatter6 = FigureCanvasTkAgg(figure6, root) 
+scatter6.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH)
+ax6.legend(['Placed']) 
+ax6.set_xlabel('Materials Used')
+ax6.set_title('Materials Used Vs. Placed')
+
+root.mainloop()
+
