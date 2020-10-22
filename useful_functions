@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Oct 19 19:09:19 2020
+
+@author: carterhogan
+"""
+import numpy as np
+import types
+from nose.tools import assert_equal, assert_raises
+
+def gradf(x,y):
+    f_x = 2*x*(np.sin(y))**3 + (-y**3)/(x**(3/2)) 
+    f_y = 3*(x**2)*np.cos(y)*(np.sin(y))**2 + (6*y**2)/(x**(1/2))
+    return (f_x,f_y)    
+def f(x,y):
+    return (x**2)*(np.sin(y))**3 +2*((y**3)/(x**(1/2)))
+def gradfnum(x,y,h):
+    def f(x,y):
+        return (x**2)*(np.sin(y))**3 +2*((y**3)/(x**(1/2)))
+    f_x = (f(x+h,y) - f(x-h,y))/(2*h)
+    f_y = (f(x,y+h) - f(x,y-h))/(2*h)
+    return (f_x,f_y)
+def grad(f,x,y,h):
+    f_x = (f(x+h,y) - f(x-h,y))/(2*h)
+    f_y = (f(x,y+h) - f(x,y-h))/(2*h)
+    return (f_x,f_y)
+def DDeriv(f,x,y,h,v):
+    f_x = (f(x+h,y) - f(x-h,y))/(2*h)
+    f_y = (f(x,y+h) - f(x,y-h))/(2*h)
+    f_d = (f_x,f_y)
+    v_d = v/(np.linalg.norm(v))
+    return np.dot(f_d,v_d)
+    
+    
